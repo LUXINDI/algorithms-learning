@@ -1,5 +1,10 @@
 package com.xindi;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 运用你所掌握的数据结构，设计和实现一个  LRU (最近最少使用) 缓存机制 。
  *
@@ -40,17 +45,71 @@ package com.xindi;
  * 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
  */
 class LRUCache {
+  public class DLinkedNode{
+    DLinkedNode next;
+    DLinkedNode prev;
+    int key;
+    int val;
+    public DLinkedNode() {};
+    public DLinkedNode(int _key, int _val){
+      key = _key;
+      val = _val;
+    }
 
+  }
+  private int capacity;
+  private Map<Integer, DLinkedNode> cache = new HashMap<>();
+  private int size = 0;
+  DLinkedNode head, tail;
   public LRUCache(int capacity) {
-
+    this.capacity = capacity;
+    this.size = 0;
+    this.head = new DLinkedNode();
+    this.tail = new DLinkedNode();
+    head.next = tail;
+    tail.prev = head;
   }
 
   public int get(int key) {
-
+    if (cache.get(key)==null) return -1;
+    removeNode(cache.get(key));
+    addToHead(cache.get(key));
+    return cache.get(key).val;
   }
 
   public void put(int key, int value) {
+    DLinkedNode node = new DLinkedNode(key,value);
+    addToHead(node);
+    if(cache.containsKey(key)){
+      DLinkedNode old = cache.get(key);
+      removeNode(old);
+    } else {
+      size ++;
+    }
+    cache.put(key, node);
+    if (size > capacity){
+      DLinkedNode last = removeLast();
+      cache.remove(last.key);
+      size --;
+    }
+  }
 
+  private void removeNode(DLinkedNode node){
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+  }
+
+  private void addToHead(DLinkedNode node){
+    node.next = head.next;
+    head.next.prev = node;
+    head.next = node;
+    node.prev = head;
+  }
+
+  private DLinkedNode removeLast(){
+    DLinkedNode last = tail.prev;
+    removeNode(last);
+    return last;
   }
 }
 
