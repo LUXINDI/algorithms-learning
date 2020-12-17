@@ -1,5 +1,10 @@
 package com.xindi;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 /**
  * 你这个学期必须选修 numCourse 门课程，记为 0 到 numCourse-1 。
  *
@@ -26,7 +31,67 @@ package com.xindi;
  * 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
  */
 class CourseSchedule {
-  public boolean canFinish(int numCourses, int[][] prerequisites) {
+  //BFS
+  public boolean canFinish1(int numCourses, int[][] prerequisites) {
+    int[] indegrees = new int[numCourses];
+    List<List<Integer>> adj = new ArrayList<>();
+    for(int i=0;i<numCourses;i++){
+      adj.add(new ArrayList<>());
+    }
+    for(int[] edge:prerequisites){
+      indegrees[edge[0]]++;
+      adj.get(edge[1]).add(edge[0]);
+    }
+    Queue<Integer> queue = new LinkedList<>();
+    for(int i=0;i<numCourses;i++){
+      if(indegrees[i]==0) queue.offer(i);
+    }
+    while(!queue.isEmpty()){
+      int course = queue.poll();
+      numCourses--;
+      for(int a : adj.get(course)){
+        indegrees[a]--;
+        if(indegrees[a]==0) queue.offer(a);
+      }
+    }
+    return numCourses==0;
+  }
+  private List<List<Integer>> getAdj(int numCourses, int[][] prerequisites){
+    List<List<Integer>> adj = new ArrayList<>();
+    for(int i=0;i<numCourses;i++){
+      adj.add(new ArrayList<>());
+    }
+    for(int[] edge:prerequisites){
+      adj.get(edge[1]).add(edge[0]);
+    }
+    return adj;
+  }
 
+  //DFS
+  public boolean canFinish2(int numCourses, int[][] prerequisites){
+    List<List<Integer>> adj = getAdj(numCourses, prerequisites);
+    int[] flag = new int[numCourses];
+    for (int i=0;i<numCourses;i++) {
+      if (!dfs(flag, 0, adj)) return false;
+    }
+    return true;
+  }
+
+  private boolean dfs(int[] flag, int i, List<List<Integer>> adj){
+    if(flag[i] == 1) return false;
+    if(flag[i] == -1) return true;
+    for(int c : adj.get(i)){
+      if(!dfs(flag, c, adj)) return false;
+    }
+    flag[i] = -1;
+    return true;
+  }
+
+  public static void main(String[] args){
+    int[][] p = new int[2][2];
+    p[0] = new int[]{1,0};
+    p[1] = new int[]{0,1};
+    CourseSchedule cs = new CourseSchedule();
+    cs.canFinish2(2, p);
   }
 }

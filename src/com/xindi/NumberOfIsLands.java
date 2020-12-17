@@ -31,6 +31,6 @@ package com.xindi;
  */
 class NumberOfIsLands {
   public int numIslands(char[][] grid) {
-
+    return 0;
   }
 }
